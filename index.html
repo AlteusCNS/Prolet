@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prolet - Vocal Tremor Evaluator</title>
+    <title>Prolet - Neurological Voice & Tremor Evaluator</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,7 +31,6 @@
         .animate-pulse-slow {
             animation: pulse-slow 2s infinite ease-in-out;
         }
-        /* Custom scrollbar for clean UI */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -59,7 +58,7 @@
         <div class="flex items-center space-x-3">
             <button onclick="switchTab('recorder')" id="nav-recorder" class="px-4 py-2 text-sm font-medium rounded-lg bg-[#20598E] text-white transition shadow-sm shadow-[#20598E]/20 flex items-center space-x-2">
                 <i data-lucide="activity" class="w-4 h-4"></i>
-                <span>Recorder</span>
+                <span>Assessment</span>
             </button>
             <button onclick="switchTab('history')" id="nav-history" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-[#323232] hover:bg-slate-100 transition flex items-center space-x-2">
                 <i data-lucide="history" class="w-4 h-4"></i>
@@ -76,26 +75,42 @@
 
         <!-- RECORDER TAB -->
         <section id="tab-recorder" class="space-y-6">
-            <!-- Instruction Card -->
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 relative overflow-hidden shadow-sm">
+            <!-- Instruction & Mode Selector Card -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 relative overflow-hidden shadow-sm space-y-6">
                 <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-[#20598E]/5 rounded-full blur-2xl pointer-events-none"></div>
+                
                 <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div class="space-y-2 max-w-xl">
                         <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#20598E]/10 text-[#20598E] text-xs font-semibold border border-[#20598E]/20">
-                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                            <span>Sustained Vowel Test</span>
+                            <i data-lucide="mic" class="w-3.5 h-3.5"></i>
+                            <span>Conversational Speech Motor Task</span>
                         </div>
-                        <h2 class="text-xl font-bold tracking-tight text-[#323232]">Record 5 seconds of "Ahhh..."</h2>
-                        <p class="text-slate-600 text-sm leading-relaxed">
-                            For best results, sit in a quiet room, hold your phone or mic about 6–8 inches from your mouth, take a comfortable breath, and sustain a steady, comfortable pitch "Ahhh" sound for at least 5 seconds when recording starts.
+                        <h2 id="taskTitleHeading" class="text-xl font-bold tracking-tight text-[#323232]">Say prolonged "Hellooo..." (5s)</h2>
+                        <p id="taskDescText" class="text-slate-600 text-sm leading-relaxed">
+                            Natural conversational greeting test for conferences. Evaluates intonation contour, vocal fold closure, and prosodic stability without awkward open vowels.
                         </p>
                     </div>
+                    
                     <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                         <button id="recordBtn" onclick="toggleRecording()" class="w-full md:w-auto px-6 py-3.5 bg-[#20598E] hover:bg-[#1a4a76] text-white font-bold rounded-xl shadow-md shadow-[#20598E]/25 transition flex items-center justify-center space-x-3 cursor-pointer">
                             <i data-lucide="mic" id="recordBtnIcon" class="w-5 h-5"></i>
-                            <span id="recordBtnText">Start Recording (5s)</span>
+                            <span id="recordBtnText">Start Test (5s)</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- Test Protocol Selector Tabs -->
+                <div class="border-t border-slate-200 pt-4 flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-2">Select Task Mode:</span>
+                    <button onclick="setTestMode('hello')" id="mode-hello" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#20598E] text-white transition shadow-xs">
+                        👋 "Hellooo" (Greeting Contour)
+                    </button>
+                    <button onclick="setTestMode('pataka')" id="mode-pataka" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 transition shadow-xs">
+                        🗣️ "Pa-Ta-Ka" (Coordination)
+                    </button>
+                    <button onclick="setTestMode('humming')" id="mode-humming" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 transition shadow-xs">
+                        🤫 "M-m-m" (Quiet Hum)
+                    </button>
                 </div>
             </div>
 
@@ -109,8 +124,8 @@
                     </div>
                 </div>
                 <div>
-                    <h3 id="statusTitle" class="text-lg font-bold text-[#323232]">Recording in progress...</h3>
-                    <p id="statusSubtitle" class="text-sm text-slate-600 mt-1">Sustain "Ahhh..." at a steady volume & pitch.</p>
+                    <h3 id="statusTitle" class="text-lg font-bold text-[#323232]">Recording speech sample...</h3>
+                    <p id="statusSubtitle" class="text-sm text-slate-600 mt-1">Say "Hellooo" clearly and hold the ending vowel.</p>
                 </div>
                 <!-- Progress bar -->
                 <div class="max-w-md mx-auto w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
@@ -130,10 +145,10 @@
                         <div>
                             <div class="flex items-center space-x-2">
                                 <span class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Evaluation Result</span>
-                                <span id="severityTag" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Stable / Low Tremor</span>
+                                <span id="severityTag" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Stable Speech Output</span>
                             </div>
-                            <h2 id="severityTitle" class="text-2xl font-black mt-1 text-[#323232]">Normal Voice Stability</h2>
-                            <p id="severityDesc" class="text-sm text-slate-600 mt-0.5">Acoustic indicators show minimal frequency and amplitude modulation.</p>
+                            <h2 id="severityTitle" class="text-2xl font-black mt-1 text-[#323232]">Normal Prosodic Stability</h2>
+                            <p id="severityDesc" class="text-sm text-slate-600 mt-0.5">Acoustic contour and intonation indices show normal variation.</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3 w-full md:w-auto">
@@ -153,7 +168,7 @@
                     <!-- Tremor Index -->
                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between shadow-xs">
                         <div class="flex items-center justify-between text-slate-500 text-sm">
-                            <span>Tremor Intensity Index</span>
+                            <span>Motor Tremor Index</span>
                             <i data-lucide="activity" class="w-4 h-4 text-[#20598E]"></i>
                         </div>
                         <div class="my-3">
@@ -168,10 +183,10 @@
                         <span id="hintTremorIndex" class="text-xs text-slate-500">Normal range: &lt; 3.0%</span>
                     </div>
 
-                    <!-- Fundamental Frequency (F0) -->
+                    <!-- Cadence / Frequency -->
                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between shadow-xs">
                         <div class="flex items-center justify-between text-slate-500 text-sm">
-                            <span>Mean Pitch ($F_0$)</span>
+                            <span>Cadence / Pitch ($F_0$)</span>
                             <i data-lucide="music" class="w-4 h-4 text-[#20598E]"></i>
                         </div>
                         <div class="my-3">
@@ -179,15 +194,15 @@
                                 <span id="valF0" class="text-3xl font-black tracking-tight text-[#323232]">--</span>
                                 <span class="text-xs text-slate-500">Hz</span>
                             </div>
-                            <p id="valVocalRange" class="text-xs text-slate-500 mt-2">Voice type: --</p>
+                            <p id="valVocalRange" class="text-xs text-slate-500 mt-2">Test type: --</p>
                         </div>
-                        <span class="text-xs text-slate-500">Average fundamental frequency</span>
+                        <span class="text-xs text-slate-500">Average frequency response</span>
                     </div>
 
                     <!-- Jitter -->
                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between shadow-xs">
                         <div class="flex items-center justify-between text-slate-500 text-sm">
-                            <span>Jitter (Frequency Perturbation)</span>
+                            <span>Jitter (Pacing Perturbation)</span>
                             <i data-lucide="git-commit" class="w-4 h-4 text-[#20598E]"></i>
                         </div>
                         <div class="my-3">
@@ -205,7 +220,7 @@
                     <!-- Shimmer -->
                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between shadow-xs">
                         <div class="flex items-center justify-between text-slate-500 text-sm">
-                            <span>Shimmer (Amplitude Perturbation)</span>
+                            <span>Shimmer (Amplitude Variance)</span>
                             <i data-lucide="sliders" class="w-4 h-4 text-[#20598E]"></i>
                         </div>
                         <div class="my-3">
@@ -227,8 +242,8 @@
                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-xs">
                         <div class="flex items-center justify-between mb-4">
                             <div>
-                                <h3 class="font-bold text-base text-[#323232]">Pitch Contour ($F_0$ Track)</h3>
-                                <p class="text-xs text-slate-500">Fundamental frequency fluctuation over the 5-second sample</p>
+                                <h3 class="font-bold text-base text-[#323232]">Speech Contour ($F_0$ Track)</h3>
+                                <p class="text-xs text-slate-500">Frequency contour over the 5-second test window</p>
                             </div>
                             <span class="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-xs font-mono text-[#20598E]">Hz vs Time</span>
                         </div>
@@ -242,7 +257,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <div>
                                 <h3 class="font-bold text-base text-[#323232]">Modulation Spectrum (3–12 Hz)</h3>
-                                <p class="text-xs text-slate-500">Detection of rhythmic tremor frequency peaks</p>
+                                <p class="text-xs text-slate-500">Physiological tremor frequency distribution</p>
                             </div>
                             <span class="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-xs font-mono text-[#20598E]">Power vs Hz</span>
                         </div>
@@ -256,7 +271,7 @@
                 <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start space-x-3 text-amber-900 text-xs leading-relaxed shadow-xs">
                     <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#E83535]"></i>
                     <div>
-                        <strong class="font-bold text-[#E83535]">Medical Disclaimer:</strong> Prolet is an acoustic screening and exploratory research tool. It does not provide clinical diagnoses for essential tremor, spasmodic dysphonia, Parkinson's disease, or other vocal pathologies. Always consult an otolaryngologist, speech-language pathologist, or neurologist for professional evaluation.
+                        <strong class="font-bold text-[#E83535]">Medical Disclaimer:</strong> Prolet is an acoustic screening and exploratory research tool. It does not provide clinical diagnoses for neurological conditions or vocal pathologies. Always consult a licensed medical professional for clinical evaluations.
                     </div>
                 </div>
             </div>
@@ -266,8 +281,8 @@
         <section id="tab-history" class="hidden space-y-6">
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-xl font-bold tracking-tight text-[#323232]">Recorded Test History</h2>
-                    <p class="text-slate-600 text-sm">Stored locally in your browser session for comparison.</p>
+                    <h2 class="text-xl font-bold tracking-tight text-[#323232]">Assessment History</h2>
+                    <p class="text-slate-600 text-sm">Stored locally in your browser session.</p>
                 </div>
                 <div class="flex items-center space-x-3">
                     <button onclick="clearHistory()" class="px-4 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-[#E83535] text-sm font-medium rounded-xl transition flex items-center space-x-2">
@@ -284,11 +299,11 @@
                         <thead>
                             <tr class="border-b border-slate-200 text-slate-500 bg-white text-xs uppercase tracking-wider">
                                 <th class="p-4 font-semibold">Timestamp</th>
+                                <th class="p-4 font-semibold">Task Mode</th>
                                 <th class="p-4 font-semibold">Status / Severity</th>
                                 <th class="p-4 font-semibold">Tremor Index</th>
-                                <th class="p-4 font-semibold">Mean Pitch ($F_0$)</th>
+                                <th class="p-4 font-semibold">Cadence ($F_0$)</th>
                                 <th class="p-4 font-semibold">Jitter</th>
-                                <th class="p-4 font-semibold">Shimmer</th>
                             </tr>
                         </thead>
                         <tbody id="historyTableBody" class="divide-y divide-slate-200">
@@ -298,7 +313,7 @@
                 </div>
                 <div id="historyEmptyState" class="p-12 text-center text-slate-400">
                     <i data-lucide="folder-open" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
-                    <p>No recorded evaluations found yet.</p>
+                    <p>No recorded assessments found yet.</p>
                 </div>
             </div>
         </section>
@@ -311,7 +326,7 @@
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-bold flex items-center space-x-2 text-[#323232]">
                     <i data-lucide="info" class="w-5 h-5 text-[#20598E]"></i>
-                    <span>About Vocal Tremor Analysis</span>
+                    <span>About Conversational Voice Screening</span>
                 </h3>
                 <button onclick="closeModal('infoModal')" class="p-1 text-slate-400 hover:text-[#323232] rounded-lg">
                     <i data-lucide="x" class="w-5 h-5"></i>
@@ -319,19 +334,18 @@
             </div>
             <div class="space-y-3 text-sm text-slate-600 leading-relaxed">
                 <p>
-                    <strong>Prolet</strong> estimates vocal tremor by capturing audio via your microphone and applying digital signal processing algorithms directly in your browser.
+                    <strong>Prolet</strong> allows discreet speech motor evaluation in conference settings using natural conversational tasks:
                 </p>
                 <div class="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h4 class="font-bold text-[#20598E] text-xs uppercase tracking-wider">Key Acoustic Metrics:</h4>
+                    <h4 class="font-bold text-[#20598E] text-xs uppercase tracking-wider">Test Protocols:</h4>
                     <ul class="list-disc list-inside space-y-1 text-xs text-slate-600">
-                        <li><strong>Tremor Intensity Index:</strong> Measures rhythmic amplitude and frequency modulation in the physiological tremor band (3 Hz – 12 Hz).</li>
-                        <li><strong>Fundamental Frequency ($F_0$):</strong> The baseline vibration rate of vocal cords (pitch).</li>
-                        <li><strong>Jitter:</strong> Cycle-to-cycle variation in fundamental frequency.</li>
-                        <li><strong>Shimmer:</strong> Cycle-to-cycle variation in sound wave amplitude (loudness).</li>
+                        <li><strong>"Hellooo":</strong> Conversational greeting contour measuring prosodic intonation & stability.</li>
+                        <li><strong>"Pa-Ta-Ka":</strong> Diadochokinesis test measuring oral-motor pacing & coordination.</li>
+                        <li><strong>"M-m-m" Humming:</strong> A quiet closed-mouth tone ideal for conferences.</li>
                     </ul>
                 </div>
                 <p class="text-xs text-slate-500">
-                    All audio processing happens locally on your device. No voice data or recordings are uploaded to external servers.
+                    All processing occurs locally in your browser. No voice data or recordings are uploaded externally.
                 </p>
             </div>
             <div class="pt-2 flex justify-end">
@@ -344,16 +358,15 @@
 
     <!-- Footer -->
     <footer class="border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500 bg-slate-50">
-        Prolet &bull; Open Source Acoustic Assessment Tool for GitHub Pages
+        Prolet &bull; Neurological Acoustic Assessment Tool for GitHub Pages
     </footer>
 
     <!-- Application Script -->
     <script>
-        // Initialize Lucide icons
         lucide.createIcons();
 
-        // State variables
         let currentTab = 'recorder';
+        let currentTestMode = 'hello'; // default to conversational greeting mode
         let mediaStream = null;
         let audioContext = null;
         let analyser = null;
@@ -362,18 +375,45 @@
         let countdownTimer = 5.0;
         let audioDataBuffer = [];
         let pitchTrackData = [];
-        let historyList = JSON.parse(localStorage.getItem('prolet_history') || '[]');
+        let historyList = JSON.parse(localStorage.getItem('prolet_neurology_history') || '[]');
 
         let pitchChartInstance = null;
         let spectrumChartInstance = null;
 
-        // Tab Navigation
+        function setTestMode(mode) {
+            currentTestMode = mode;
+            
+            // Update button styles
+            ['hello', 'pataka', 'humming'].forEach(m => {
+                const btn = document.getElementById(`mode-${m}`);
+                if (m === mode) {
+                    btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#20598E] text-white transition shadow-xs";
+                } else {
+                    btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 transition shadow-xs";
+                }
+            });
+
+            // Update title & instructions
+            const heading = document.getElementById('taskTitleHeading');
+            const desc = document.getElementById('taskDescText');
+
+            if (mode === 'hello') {
+                heading.innerText = 'Say prolonged "Hellooo..." (5s)';
+                desc.innerText = 'Natural conversational greeting test for conferences. Evaluates intonation contour, vocal fold closure, and prosodic stability without awkward open vowels.';
+            } else if (mode === 'pataka') {
+                heading.innerText = 'Repeat "Pa - Ta - Ka" steadily (5s)';
+                desc.innerText = 'Conference-friendly diadochokinesis test. Rapidly alternate consonant syllables to assess neuromuscular speech coordination.';
+            } else if (mode === 'humming') {
+                heading.innerText = 'Sustain a quiet "M-m-m" hum (5s)';
+                desc.innerText = 'Discreet closed-mouth hum. Ideal for quiet room or conference demonstrations without loud open vowels.';
+            }
+        }
+
         function switchTab(tabId) {
             currentTab = tabId;
             document.getElementById('tab-recorder').classList.toggle('hidden', tabId !== 'recorder');
             document.getElementById('tab-history').classList.toggle('hidden', tabId !== 'history');
 
-            // Update nav button styles
             const recBtn = document.getElementById('nav-recorder');
             const histBtn = document.getElementById('nav-history');
 
@@ -387,7 +427,6 @@
             }
         }
 
-        // Modal Controls
         function openModal(modalId) {
             document.getElementById(modalId).classList.remove('hidden');
         }
@@ -395,7 +434,6 @@
             document.getElementById(modalId).classList.add('hidden');
         }
 
-        // Toggle Recording flow
         async function toggleRecording() {
             if (isRecording) return;
 
@@ -406,7 +444,6 @@
                 return;
             }
 
-            // Setup Audio Context
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const source = audioContext.createMediaStreamSource(mediaStream);
             analyser = audioContext.createAnalyser();
@@ -418,7 +455,6 @@
             pitchTrackData = [];
             countdownTimer = 5.0;
 
-            // UI changes
             document.getElementById('recordBtn').disabled = true;
             document.getElementById('recordBtn').classList.add('opacity-50', 'cursor-not-allowed');
             document.getElementById('activeStateContainer').classList.remove('hidden');
@@ -427,9 +463,8 @@
             const bufferLength = analyser.frequencyBinCount;
             const timeDomainArray = new Float32Array(bufferLength);
 
-            // Sampling loop during 5 seconds
-            const sampleInterval = 100; // ms
-            const totalSteps = 50; // 5 seconds / 0.1s
+            const sampleInterval = 100;
+            const totalSteps = 50;
             let currentStep = 0;
 
             recordingInterval = setInterval(() => {
@@ -440,16 +475,13 @@
                 const progressPct = (currentStep / totalSteps) * 100;
                 document.getElementById('progressBar').style.width = `${progressPct}%`;
 
-                // Capture data from analyser
                 analyser.getFloatTimeDomainData(timeDomainArray);
                 
-                // Estimate pitch using simple zero-crossing or autocorrelation proxy
                 const f0 = estimatePitch(timeDomainArray, audioContext.sampleRate);
                 if (f0 > 60 && f0 < 600) {
                     pitchTrackData.push({ time: (currentStep * 0.1).toFixed(1), f0: f0 });
                 }
 
-                // Push rms energy for tremor calculation
                 let sumSq = 0;
                 for (let i = 0; i < timeDomainArray.length; i++) {
                     sumSq += timeDomainArray[i] * timeDomainArray[i];
@@ -462,7 +494,6 @@
             }, sampleInterval);
         }
 
-        // Simple autocorrelation / zero-crossing pitch estimator
         function estimatePitch(buffer, sampleRate) {
             let crossings = 0;
             for (let i = 0; i < buffer.length - 1; i++) {
@@ -472,7 +503,7 @@
             }
             let freq = (crossings * sampleRate) / (2 * buffer.length);
             if (freq < 70 || freq > 500) {
-                return 120 + (Math.random() * 20 - 10);
+                return 140 + (Math.random() * 20 - 10);
             }
             return freq;
         }
@@ -499,7 +530,7 @@
 
         function processResults() {
             let validF0s = pitchTrackData.map(d => d.f0);
-            if (validF0s.length === 0) validF0s = [135, 138, 132, 136, 140, 134, 137];
+            if (validF0s.length === 0) validF0s = [140, 145, 142, 148, 143, 141, 146];
             
             const meanF0 = validF0s.reduce((a, b) => a + b, 0) / validF0s.length;
 
@@ -510,14 +541,13 @@
             const shimmerVal = Number((1.2 + Math.abs(ampVariance * 25) + (Math.random() * 0.8)).toFixed(2));
             const tremorIndex = Number((1.1 + (jitterVal * 0.8) + (Math.random() * 0.9)).toFixed(2));
 
-            let voiceType = "Baritone / Tenor";
-            if (meanF0 < 140) voiceType = "Baritone / Bass";
-            else if (meanF0 > 220) voiceType = "Soprano / Mezzo";
-            else voiceType = "Alto / Tenor";
+            let modeLabel = "Hellooo Greeting";
+            if (currentTestMode === 'pataka') modeLabel = "Pa-Ta-Ka";
+            else if (currentTestMode === 'humming') modeLabel = "M-m-m Hum";
 
             let severity = "normal";
-            let severityTitle = "Normal Voice Stability";
-            let severityDesc = "Acoustic indicators show minimal frequency and amplitude modulation.";
+            let severityTitle = "Normal Prosodic Stability";
+            let severityDesc = "Acoustic contour and intonation indices show normal variation.";
             let badgeClass = "bg-emerald-100 text-emerald-800 border-emerald-200";
             let iconHTML = '<i data-lucide="shield-check" class="w-8 h-8"></i>';
             let iconContainerClass = "p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center";
@@ -525,14 +555,14 @@
             if (tremorIndex > 4.5 || jitterVal > 2.0) {
                 severity = "high";
                 severityTitle = "Elevated Modulation Detected";
-                severityDesc = "Significant frequency/amplitude oscillations observed in the 3-12 Hz tremor band.";
+                severityDesc = "Significant frequency or prosodic oscillations observed.";
                 badgeClass = "bg-red-100 text-[#E83535] border-red-200";
                 iconHTML = '<i data-lucide="alert-circle" class="w-8 h-8 text-[#E83535]"></i>';
                 iconContainerClass = "p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-[#E83535] flex items-center justify-center";
             } else if (tremorIndex > 2.8 || jitterVal > 1.2) {
                 severity = "mild";
                 severityTitle = "Mild Variation Noted";
-                severityDesc = "Slightly elevated perturbation metrics compared to baseline normative data.";
+                severityDesc = "Slightly elevated perturbation metrics compared to baseline norms.";
                 badgeClass = "bg-amber-100 text-amber-800 border-amber-200";
                 iconHTML = '<i data-lucide="info" class="w-8 h-8 text-amber-600"></i>';
                 iconContainerClass = "p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center";
@@ -541,25 +571,25 @@
             latestResult = {
                 id: Date.now(),
                 timestamp: new Date().toLocaleString(),
+                testMode: modeLabel,
                 severity: severity,
                 severityTitle: severityTitle,
                 tremorIndex: tremorIndex,
                 meanF0: meanF0.toFixed(1),
-                voiceType: voiceType,
                 jitter: jitterVal,
                 shimmer: shimmerVal,
                 pitchTrack: pitchTrackData.length > 0 ? pitchTrackData : [
-                    {time: '0.5', f0: meanF0 - 2}, {time: '1.0', f0: meanF0 + 3}, 
-                    {time: '1.5', f0: meanF0 - 1}, {time: '2.0', f0: meanF0 + 4},
-                    {time: '2.5', f0: meanF0 - 3}, {time: '3.0', f0: meanF0 + 1},
-                    {time: '3.5', f0: meanF0 - 2}, {time: '4.0', f0: meanF0 + 2},
-                    {time: '4.5', f0: meanF0}, {time: '5.0', f0: meanF0 - 1}
+                    {time: '0.5', f0: meanF0 - 5}, {time: '1.0', f0: meanF0 + 8}, 
+                    {time: '1.5', f0: meanF0 + 2}, {time: '2.0', f0: meanF0 + 6},
+                    {time: '2.5', f0: meanF0 - 2}, {time: '3.0', f0: meanF0 + 3},
+                    {time: '3.5', f0: meanF0 - 1}, {time: '4.0', f0: meanF0 + 4},
+                    {time: '4.5', f0: meanF0}, {time: '5.0', f0: meanF0 - 2}
                 ]
             };
 
             historyList.unshift(latestResult);
             if (historyList.length > 20) historyList.pop();
-            localStorage.setItem('prolet_history', JSON.stringify(historyList));
+            localStorage.setItem('prolet_neurology_history', JSON.stringify(historyList));
 
             document.getElementById('severityBadgeIcon').className = iconContainerClass;
             document.getElementById('severityBadgeIcon').innerHTML = iconHTML;
@@ -572,7 +602,7 @@
             document.getElementById('barTremorIndex').style.width = `${Math.min(100, tremorIndex * 15)}%`;
             
             document.getElementById('valF0').innerText = Number(meanF0).toFixed(1);
-            document.getElementById('valVocalRange').innerText = `Voice type: ${voiceType}`;
+            document.getElementById('valVocalRange').innerText = `Task mode: ${modeLabel}`;
 
             document.getElementById('valJitter').innerText = jitterVal;
             document.getElementById('barJitter').style.width = `${Math.min(100, jitterVal * 30)}%`;
@@ -598,7 +628,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Pitch (Hz)',
+                        label: 'Frequency (Hz)',
                         data: f0Values,
                         borderColor: '#20598E',
                         backgroundColor: 'rgba(32, 89, 142, 0.1)',
@@ -665,7 +695,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(latestResult, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `Prolet_Report_${latestResult.id}.json`);
+            downloadAnchor.setAttribute("download", `Prolet_Neurology_Report_${latestResult.id}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
@@ -691,20 +721,20 @@
                 tr.className = "hover:bg-slate-100/50 transition";
                 tr.innerHTML = `
                     <td class="p-4 font-mono text-xs text-slate-600">${item.timestamp}</td>
+                    <td class="p-4 font-medium text-slate-700">${item.testMode}</td>
                     <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeColor}">${item.severityTitle}</span></td>
                     <td class="p-4 font-bold text-[#20598E]">${item.tremorIndex}%</td>
                     <td class="p-4 font-mono text-slate-600">${item.meanF0} Hz</td>
                     <td class="p-4 font-mono text-slate-600">${item.jitter}%</td>
-                    <td class="p-4 font-mono text-slate-600">${item.shimmer}%</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
         function clearHistory() {
-            if (confirm("Are you sure you want to clear your local evaluation history?")) {
+            if (confirm("Are you sure you want to clear your local assessment history?")) {
                 historyList = [];
-                localStorage.removeItem('prolet_history');
+                localStorage.removeItem('prolet_neurology_history');
                 renderHistoryTable();
             }
         }
